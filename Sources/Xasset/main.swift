@@ -1,27 +1,21 @@
-import SwiftShell
 import Foundation
 
-guard main.arguments.count == 2 else {
-    exit(errormessage: "XCASSET_PATH OUTPUT_PATH")
-}
+import Commander
 
-let xcassetUrlString = main.arguments[0]
-guard Files.fileExists(atPath: xcassetUrlString) else {
-    exit(errormessage: "\(xcassetUrlString) no exist")
-}
-
-let outputUrlString = main.arguments[1]
-// Create output directory if not exist.
-if !Files.fileExists(atPath: outputUrlString) {
-    do {
-        try Files.createDirectory(atPath: outputUrlString, withIntermediateDirectories: true, attributes: nil)
-    } catch {
-        exit(error)
+Group {
+    $0.command(
+        "export",
+        Argument<String>("at", description: "xcasset path"),
+        Argument<String>("to", description: "export path")
+    ) { at, to in
+        try export(at: URL(fileURLWithPath: at), to: URL(fileURLWithPath: to))
     }
-}
+    $0.command(
+        "replace",
+        Argument<String>("at", description: "images path"),
+        Argument<String>("to", description: "xcasset path")
+    ) { at, to in
+        try replace(at: URL(fileURLWithPath: at), to: URL(fileURLWithPath: to))
+    }
+}.run()
 
-let xcassetURL = URL(fileURLWithPath: xcassetUrlString, isDirectory: true)
-let outputURL = URL(fileURLWithPath: outputUrlString, isDirectory: true)
-
-print(xcassetURL)
-print(outputURL)
